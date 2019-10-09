@@ -551,6 +551,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (JSON.parse(this.responseText)[2] == 20) {
                         clearInterval(update_repeat);
                         displayOpponentWin();
+                        let lose_request = new XMLHttpRequest();
+                        lose_request.open('GET', 'bs_mult/record?result=lose&id=' + userid, true);
+                        lose_request.send();
                         break update_cycle;
                     }
                     let hit_indicator = false;
@@ -653,6 +656,9 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                         if (total_hit === 20) {
                             displayPlayerWin();
+                            let win_request = new XMLHttpRequest();
+                            win_request.open('GET', 'bs_mult/record?result=win&id=' + userid, true);
+                            win_request.send();
                         }
                         hit_indicator = true;
                         break;

@@ -55,6 +55,8 @@ Route::get('/bs_mult/update', 'MultiplayerBattleshipController@battleshipMultipl
 
 Route::get('/bs_mult/leave', 'MultiplayerBattleshipController@battleshipMultiplayerLeave');
 
+Route::get('/bs_mult/record', 'MultiplayerBattleshipController@battleshipMultiplayerRecord');
+
 Route::get('/logout', 'PagesController@logout');
 
 Auth::routes();

@@ -168,4 +168,19 @@ class MultiplayerBattleshipController extends Controller
             Redis::command('del', [$prefix.'_'.$ship_name]);
         }
     }
+
+    public function battleshipMultiplayerRecord () {
+        var_dump($_GET);
+        if ($_GET['result'] === 'win') {
+            $user = User::find($_GET['id']);
+            $user->bs_mult_wins += 1;
+            $user->bs_mult_total += 1;
+            $user->save();
+        } elseif ($_GET['result'] === 'lose') {
+            $user = User::find($_GET['id']);
+            $user->bs_mult_losses += 1;
+            $user->bs_mult_total += 1;
+            $user->save();
+        }
+    }
 }
