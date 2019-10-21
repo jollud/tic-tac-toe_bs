@@ -20,9 +20,9 @@ class MultiplayerBattleshipController extends Controller
         if (!Auth::check()){
             return redirect('/login');
         }
-        Redis::command('lrem', ['bs_queue', '0', Auth::id()]);
-        Redis::command('lpush', ['bs_queue', Auth::id()]);
-        Redis::command('set', ['bs_'.Auth::id(), 'not_playing']);
+        Redis::command('lrem', ['bs_queue', '0', session()->get('userid')]);
+        Redis::command('lpush', ['bs_queue', session()->get('userid')]);
+        Redis::command('set', ['bs_'.session()->get('userid'), 'not_playing']);
         if (Redis::command('llen', ['bs_queue']) >= 2) {
             $players []['id'] = Redis::command('rpop', ['bs_queue']);
             $players []['id'] = Redis::command('rpop', ['bs_queue']);
@@ -61,28 +61,26 @@ class MultiplayerBattleshipController extends Controller
             Redis::command('set', ['bs_'.$game_number.'_'.$players[1]['id'].'_state', 'formation']);
 
             return 'success';
-        } elseif (Redis::command('get', ['bs_'.Auth::id()]) != 'not_playing') {
+        } elseif (Redis::command('get', ['bs_'.session()->get('userid')]) != 'not_playing') {
 
             return 'success';
         }
     }
 
     public function battleshipMultiplayerQueueLeave () {
-        Redis::command('lrem', ['bs_queue', '0', Auth::id()]);
+        Redis::command('lrem', ['bs_queue', '0', session()->get('userid')]);
     }
 
     public function battleshipMultiplayerGameData () {
         $game_data = [];
-        $game_data['game_number'] = Redis::command('get', ['bs_'.Auth::id()]);
+        $game_data['game_number'] = Redis::command('get', ['bs_'.session()->get('userid')]);
         $players_ids = explode('_', $game_data['game_number']);
         $opponent_id = array_filter($players_ids, function ($v) {
-            return $v != Auth::id() && $v != 'bs';
+            return $v != session()->get('userid') && $v != 'bs';
         });
         $opponent_id = implode('', $opponent_id);
         $game_data['opponent_name'] = Redis::command('get', ['bs_'.$game_data['game_number'].'_'.$opponent_id.'_name']);
         $game_data['opponent_id'] = $opponent_id;
-
-//        Redis::command('set', ['bs_'.$game_data['game_number'].'_'.Auth::id().'_state', 'formation']);
 
         Redis::command('set', ['bs_'.$game_data['game_number'].'_turn', 'undefined']);
 
@@ -92,7 +90,7 @@ class MultiplayerBattleshipController extends Controller
     public function battleshipMultiplayerSubmit () {
         $ship_info = json_decode($_GET['info']);
         $game_number = $_GET['game_number'];
-        $query_prefix = 'bs_'.$game_number.'_'.Auth::id();
+        $query_prefix = 'bs_'.$game_number.'_'.session()->get('userid');
         foreach ($ship_info as $ship => $cells) {
             $cells_json = json_encode($cells);
             Redis::command('set', [$query_prefix.'_'.$ship, $cells_json]);
@@ -102,8 +100,8 @@ class MultiplayerBattleshipController extends Controller
         $turn = Redis::command('get', ['bs_'.$game_number.'_turn']);
 
         if ($turn === 'undefined') {
-            Redis::command('set', ['bs_'.$game_number.'_turn', Auth::id()]);
-            $turn = Auth::id();
+            Redis::command('set', ['bs_'.$game_number.'_turn', session()->get('userid')]);
+            $turn = session()->get('userid');
         }
         return $turn;
     }
@@ -120,7 +118,7 @@ class MultiplayerBattleshipController extends Controller
             foreach ($ship_names as $ship_name) {
                 $opponent_ship_positions[$ship_name] = json_decode(Redis::command('get', [$query_prefix.'_'.$ship_name]));
             }
-            $turn = Redis::command('get', ['bs_'.$game_number.'_turn']) == Auth::id();
+            $turn = Redis::command('get', ['bs_'.$game_number.'_turn']) == session()->get('userid');
             return json_encode([$opponent_ship_positions, $turn]);
         }
     }

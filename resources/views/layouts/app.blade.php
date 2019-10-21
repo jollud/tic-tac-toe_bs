@@ -12,23 +12,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
-    <style>
-        .bd-placeholder-img {
-            font-size: 1.125rem;
-            text-anchor: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-
-        @media (min-width: 768px) {
-            .bd-placeholder-img-lg {
-                font-size: 3.5rem;
-            }
-        }
-    </style>
 </head>
 <body>
 <div class="container">
@@ -37,7 +20,7 @@
             <a class="btn btn-light" href="{{ route('login') }}">Log in</a>
             <a class="btn btn-light" href="{{ route('register') }}">Register</a>
         @else
-            <a class="btn btn-light" href="{{ route('home') }}" data-name="{{ Auth::user()->name }}" id="player" data-userid="{{ Auth::user()->id }}">Hello, {{Auth::user()->name}}</a>
+            <a class="btn btn-light" href="{{ route('home') }}" data-name="{{ session()->get('username') }}" id="player" data-userid="{{ session()->get('userid') }}">Hello, {{session()->get('username')}}</a>
             <a class="btn btn-light" href="{{ route('logout') }}">Logout</a>
         @endif
 
@@ -50,13 +33,11 @@
                 <div class="dropdown-menu">
                     <a class="dropdown-item" href="ttt_single">Single player</a>
                     <a class="dropdown-item" href="ttt_mult_queue">Multiplayer</a>
-                    <a class="dropdown-item" href="ttt_sdm">Single device multiplayer</a>
                 </div>
             </div>
             <div class="dropdown">
                 <button class="btn btn-light dropdown-toggle" data-toggle="dropdown"><h1>Battleship</h1></button>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="bs_single">Single player</a>
                     <a class="dropdown-item" href="bs_mult_queue">Multiplayer</a>
                 </div>
             </div>

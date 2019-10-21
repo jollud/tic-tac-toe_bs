@@ -18,12 +18,12 @@ class MultiplayerTictactoeController extends Controller
 
     public function tictactoeMultiplayerGameData () {
         $game_data = [];
-        $game_data['game_number'] = Redis::command('get', [Auth::id()]);
-        $game_data['side'] = Redis::command('get', [$game_data['game_number'].'_'.Auth::id()]);
+        $game_data['game_number'] = Redis::command('get', [session()->get('userid')]);
+        $game_data['side'] = Redis::command('get', [$game_data['game_number'].'_'.session()->get('userid')]);
         $game_data['turn'] = Redis::command('get', [$game_data['game_number'].'_turn']);
         $players_ids = explode('_', $game_data['game_number']);
         $opponent_id = array_filter($players_ids, function ($v) {
-            return $v != Auth::id();
+            return $v != session()->get('userid');
         });
         $opponent_id = implode('', $opponent_id);
         $game_data['opponent_name'] = Redis::command('get', [$game_data['game_number'].'_'.$opponent_id.'_name']);
@@ -66,9 +66,9 @@ class MultiplayerTictactoeController extends Controller
         if (!Auth::check()){
             return redirect('/login');
         }
-        Redis::command('lrem', ['queue', '0', Auth::id()]);
-        Redis::command('lpush', ['queue', Auth::id()]);
-        Redis::command('set', [Auth::id(), 'not_playing']);
+        Redis::command('lrem', ['queue', '0', session()->get('userid')]);
+        Redis::command('lpush', ['queue', session()->get('userid')]);
+        Redis::command('set', [session()->get('userid'), 'not_playing']);
         if (Redis::command('llen', ['queue']) >= 2) {
             $players []['id'] = Redis::command('rpop', ['queue']);
             $players []['id'] = Redis::command('rpop', ['queue']);
@@ -143,13 +143,13 @@ class MultiplayerTictactoeController extends Controller
             Redis::command('set', [$game_number.'_field33', 'not_marked']);
 
             return 'success';
-        } elseif (Redis::command('get', [Auth::id()]) != 'not_playing') {
+        } elseif (Redis::command('get', [session()->get('userid')]) != 'not_playing') {
             return 'success';
         }
     }
 
     public function tictactoeMultiplayerQueueLeave () {
-        Redis::command('lrem', ['queue', '0', Auth::id()]);
+        Redis::command('lrem', ['queue', '0', session()->get('userid')]);
     }
 
     public function tictactoeMultiplayerMoveCompleted () {
